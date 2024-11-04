@@ -7,6 +7,7 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -34,7 +35,7 @@
             border-radius: 5px;
             transition: background-color 0.3s ease;
         }
-        .sidebar a:hover {
+        .sidebar a:hover, .sidebar .active {
             background-color: #218838; /* Lebih gelap */
         }
 
@@ -87,7 +88,7 @@
 <div class="d-flex">
     <nav class="sidebar" id="sidebar" aria-label="sidebar">
         <h2>Dashboard</h2>
-        <a href="{{ route('items.index') }}">Transaction Items</a>
+        <a href="{{ route('items.index') }}" class="{{ request()->routeIs('items.index') ? 'active' : '' }}">Categori Tagihan</a>
     </nav>
 
     <div class="content flex-grow-1">
@@ -95,7 +96,7 @@
             <button id="sidebarToggle" class="btn btn-success d-lg-none">
                 <i class="fas fa-bars"></i>
             </button>
-            <h1>@yield('breadcrumb')</h1>
+            <h1>Aplikasi Pembayaran</h1>
             <button class="btn btn-outline-danger logout-btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </button>
@@ -120,6 +121,7 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
@@ -153,6 +155,6 @@
         }
     });
 </script>
-
+@yield('script')
 </body>
 </html>
