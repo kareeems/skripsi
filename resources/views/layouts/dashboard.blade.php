@@ -82,6 +82,7 @@
             }
         }
     </style>
+    @yield('style')
 </head>
 <body>
 
@@ -90,6 +91,7 @@
         <h2>Dashboard</h2>
         <a href="{{ route('items.index') }}" class="{{ request()->routeIs('items.index') ? 'active' : '' }}">Categori Tagihan</a>
         <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.index') ? 'active' : '' }}">Manajemen user</a>
+        <a href="{{ route('transactions.index') }}" class="{{ request()->routeIs('transactions.index') ? 'active' : '' }}">Manajemen Transaksi</a>
 
     </nav>
 
