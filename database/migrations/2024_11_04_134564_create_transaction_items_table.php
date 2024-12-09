@@ -19,16 +19,17 @@ return new class extends Migration
             $table->integer('quantity')->default(1);
             $table->decimal('price', 10, 2);
             $table->timestamps();
-    
+
             // Membuat foreign key constraint
             $table->foreign('transaction_id')
-                  ->references('id')
-                  ->on('transactions')
-                  ->onDelete('cascade');
+                    ->references('id')
+                    ->on('transactions')
+                    ->onDelete('cascade');
+            
             $table->foreign('item_id')
-                  ->references('id')
-                  ->on('items')
-                  ->onDelete('cascade');
+                    ->references('id')
+                    ->on('items')
+                    ->onDelete('cascade');
         });
     }
 

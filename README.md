@@ -15,7 +15,7 @@
 #### Entities
 
 1. Users: default laravel + tambah role (Student, Teacher, Admin) 
-2. TransactionItem: (contoh: Uang makan, Asrama, Biaya Sekolah)
+2. Items: (contoh: Uang makan, Asrama, Biaya Sekolah)
 3. Transaction
 4. DepositPayment
 5. DepositPocket

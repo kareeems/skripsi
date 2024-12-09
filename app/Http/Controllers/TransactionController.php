@@ -14,7 +14,9 @@ class TransactionController extends Controller
     // Menampilkan semua transaksi
     public function index()
     {
-        $transactions = Transaction::with('user')->get();
+        $transactions = Transaction::with('user')
+            ->orderBy('created_at', 'desc')->get();
+
         return view('transactions.index', compact('transactions'));
     }
 
@@ -22,14 +24,9 @@ class TransactionController extends Controller
     public function create()
     {
         $users = User::where('role', 'student')->get(); // Ambil semua pengguna
-        $selectedItems = []; // Kosongkan jika transaksi belum ada
+        $items = Item::all(); // Kosongkan jika transaksi belum ada
 
-        // Ambil semua item yang belum dipilih
-        $unselectedItems = Item::whereNotIn('id', function ($query) {
-            $query->select('item_id')->from('transaction_items');
-        })->get();
-
-        return view('transactions.create', compact('users', 'selectedItems', 'unselectedItems'));
+        return view('transactions.create', compact('users', 'items'));
     }
 
     // Menyimpan transaksi baru
@@ -40,20 +37,21 @@ class TransactionController extends Controller
             'subtotal' => 'required|numeric',
             'total' => 'required|numeric',
             'status' => 'required|in:paid,unpaid',
+            'items' => 'required|array',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.price' => 'required|numeric|min:0',
         ]);
 
-        Transaction::create($request->all());
+        $transaction = Transaction::create($request->all());
 
         // Simpan data transaction_items
         foreach ($request->items as $itemId => $itemData) {
-            if (isset($itemData['selected'])) {
-                TransactionItem::create([
-                    'transaction_id' => $transaction->id,
-                    'item_id' => $itemId,
-                    'quantity' => $itemData['quantity'],
-                    'price' => $itemData['price'],
-                ]);
-            }
+            TransactionItem::create([
+                'transaction_id' => $transaction->id,
+                'item_id' => $itemId,
+                'quantity' => $itemData['quantity'],
+                'price' => doubleval($itemData['price']),
+            ]);
         }
 
         return redirect()->route('transactions.index')->with('success', 'Transaction created successfully.');
@@ -62,7 +60,7 @@ class TransactionController extends Controller
     // Menampilkan detail transaksi
     public function show($id)
     {
-        $transaction = Transaction::with('user')->findOrFail($id);
+        $transaction = Transaction::with(['user', 'items'])->findOrFail($id);
         return view('transactions.show', compact('transaction'));
     }
 
@@ -71,7 +69,20 @@ class TransactionController extends Controller
     {
         $users = User::where('role', 'student')->get(); // Ambil semua pengguna
         $transaction = Transaction::findOrFail($id);
-        return view('transactions.edit', compact('transaction','users'));
+        $items = Item::all();
+        // Ambil item yang sudah dipilih pada transaksi
+        $selectedItems = $transaction->items->mapWithKeys(function ($item) {
+            return [
+                $item->id => [
+                    'name' => $item->name,
+                    'type' => $item->type,
+                    'price' => $item->pivot->price,  // Ambil price dari pivot
+                    'quantity' => $item->pivot->quantity,  // Ambil quantity dari pivot
+                ]
+            ];
+        });
+
+        return view('transactions.edit', compact('transaction', 'users', 'items', 'selectedItems'));
     }
 
     // Mengupdate transaksi
@@ -82,10 +93,41 @@ class TransactionController extends Controller
             'subtotal' => 'required|numeric',
             'total' => 'required|numeric',
             'status' => 'required|in:paid,unpaid',
+            'items' => 'required|array',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.price' => 'required|numeric|min:0',
         ]);
 
+        // Ambil data transaction by ID
         $transaction = Transaction::findOrFail($id);
+
+        // Ambil data item yang dikirimkan
+        $submittedItemIds = array_keys($request->items);
+
+        // Ambil semua item yang saat ini terkait dengan transaksi
+        $currentItemIds = $transaction->items->pluck('id')->toArray();
+
+        // Cari item yang dihapus (item yang ada di database tetapi tidak ada di form)
+        $itemsToDelete = array_diff($currentItemIds, $submittedItemIds);
+
+        // Hapus item yang tidak ada di form (menghapus relasi di pivot table)
+        if ($itemsToDelete) {
+            $transaction->items()->detach($itemsToDelete);
+        }
+
+        // Update data transaction
         $transaction->update($request->all());
+
+        // Perbarui item yang ada dalam transaksi
+        foreach ($request->items as $itemId => $itemData) {
+            // Jika item ada dalam transaksi, update pivot-nya
+            if (in_array($itemId, $submittedItemIds)) {
+                $transaction->items()->updateExistingPivot($itemId, [
+                    'quantity' => $itemData['quantity'],
+                    'price' => $itemData['price'],
+                ]);
+            }
+        }
 
         return redirect()->route('transactions.index')->with('success', 'Transaction updated successfully.');
     }

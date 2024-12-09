@@ -20,6 +20,7 @@ public function up()
         $table->enum('status', ['paid', 'unpaid'])->default('unpaid');
         $table->integer('instalment')->default(10);
         $table->timestamps();
+
         $table->foreign('user_id')
                 ->references('id')
                 ->on('users')

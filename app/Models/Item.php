@@ -15,4 +15,14 @@ class Item extends Model
         'type',
     ];
 
+    /**
+     * Relasi ke Transaction melalui tabel pivot TransactionItem.
+     */
+    public function transactions()
+    {
+        return $this->belongsToMany(Transaction::class, 'transaction_items')
+            ->withPivot('quantity', 'price')
+            ->withTimestamps();
+    }
+
 }

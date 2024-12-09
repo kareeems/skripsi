@@ -1,15 +1,17 @@
 @extends('layouts.dashboard')
 
-@section('breadcrumb', 'Categori Tagihan')
+@section('breadcrumb', 'Managemen User')
 
 @section('content')
 <div class="container">
-    <h1>User Management</h1>
-    <a href="{{ route('users.create') }}" class="btn btn-primary">Create New User</a>
-
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Managemen User</h1>
+        <a href="{{ route('users.create') }}" class="btn btn-primary">New User</a>
+    </div>
 
     <table class="table mt-3">
         <thead>

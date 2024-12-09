@@ -20,7 +20,7 @@
             padding-top: 20px;
             position: fixed;
             transition: width 0.5s ease-in-out;
-            width: 250px; /* Lebar sidebar */
+            width: 250px;
         }
         .sidebar h2 {
             color: white;
@@ -29,18 +29,27 @@
         }
         .sidebar a {
             color: white;
-            padding: 15px;
+            padding: 10px;
             text-decoration: none;
             display: block;
             border-radius: 5px;
             transition: background-color 0.3s ease;
         }
         .sidebar a:hover, .sidebar .active {
-            background-color: #218838; /* Lebih gelap */
+            background-color: #218838;
+        }
+
+        .sidebar-body {
+            display: block;
+            padding: 8px 16px;
+            color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .content {
-            margin-left: 250px; /* Membuat ruang untuk sidebar */
+            margin-left: 250px;
             padding: 20px;
             transition: margin-left 0.3s ease;
         }
@@ -63,6 +72,9 @@
             border: none;
             background: none;
             cursor: pointer;
+        }
+        .alert-danger > ul {
+            margin: 0;
         }
         /* Responsif */
         @media (max-width: 768px) {
@@ -88,11 +100,10 @@
 
 <div class="d-flex">
     <nav class="sidebar" id="sidebar" aria-label="sidebar">
-        <h2>Dashboard</h2>
-        <a href="{{ route('items.index') }}" class="{{ request()->routeIs('items.index') ? 'active' : '' }}">Categori Tagihan</a>
-        <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.index') ? 'active' : '' }}">Manajemen user</a>
-        <a href="{{ route('transactions.index') }}" class="{{ request()->routeIs('transactions.index') ? 'active' : '' }}">Manajemen Transaksi</a>
-
+        <h2 class="sidebar-title">Dashboard</h2>
+        <a href="{{ route('users.index') }}" class="sidebar-body {{ request()->routeIs('users*') ? 'active' : '' }}">Manajemen User</a>
+        <a href="{{ route('items.index') }}" class="sidebar-body {{ request()->routeIs('items*') ? 'active' : '' }}">Kategori Tagihan</a>
+        <a href="{{ route('transactions.index') }}" class="sidebar-body {{ request()->routeIs('transactions*') ? 'active' : '' }}">Manajemen Transaksi</a>
     </nav>
 
     <div class="content flex-grow-1">
@@ -131,22 +142,22 @@
     const sidebar = document.getElementById('sidebar');
 
     sidebarToggle.onclick = function(event) {
-        event.stopPropagation(); // Menghindari event bubbling
+        event.stopPropagation();
         sidebar.classList.toggle('open');
         if (sidebar.classList.contains('open')) {
-            sidebar.style.display = 'block'; // Menampilkan sidebar
+            sidebar.style.display = 'block';
         } else {
-            sidebar.style.display = 'none'; // Menyembunyikan sidebar
+            sidebar.style.display = 'none';
         }
     };
 
     // Menyembunyikan sidebar jika ukuran layar lebih besar dari 768px
     window.onresize = function() {
         if (window.innerWidth > 768) {
-            sidebar.style.display = 'block'; // Menampilkan sidebar
-            sidebar.classList.remove('open'); // Menghapus kelas open
+            sidebar.style.display = 'block';
+            sidebar.classList.remove('open');
         } else {
-            sidebar.style.display = 'none'; // Menyembunyikan sidebar
+            sidebar.style.display = 'none';
         }
     };
 
@@ -154,8 +165,8 @@
     document.addEventListener('click', function(event) {
         const isClickInside = sidebar.contains(event.target) || sidebarToggle.contains(event.target);
         if (!isClickInside && sidebar.classList.contains('open')) {
-            sidebar.classList.remove('open'); // Menghapus kelas open
-            sidebar.style.display = 'none'; // Menyembunyikan sidebar
+            sidebar.classList.remove('open');
+            sidebar.style.display = 'none';
         }
     });
 </script>
