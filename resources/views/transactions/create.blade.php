@@ -2,7 +2,7 @@
 @section('breadcrumb', 'New Transaction')
 
 @section('content')
-    <h1>Create New Transaction</h1>
+    <h1>New Transaction</h1>
 
     @if ($errors->any())
         <div class="alert alert-danger">
@@ -17,7 +17,7 @@
     <form action="{{ route('transactions.store') }}" method="POST">
         @csrf
         <div class="mb-3">
-            <label for="user_id" class="form-label">User</label>
+            <label for="user_id" class="form-label">Pilih Siswa</label>
             <select name="user_id" id="user_id" class="form-control" required>
                 <option value="">-- Select User --</option>
                 @foreach ($users as $user)
@@ -28,7 +28,7 @@
 
         <!-- Item yang dapat dipilih (Checkbox dalam grid) -->
         <div class="mb-4">
-            <h5 class="fw-bold">Available Items</h5>
+            <h5 class="fw-bold">Kategori Pembayaran:</h5>
             <div class="row">
                 @foreach ($items as $item)
                     <div class="col-md-4">
@@ -47,7 +47,7 @@
 
         <!-- Item yang sudah dipilih -->
         <div class="mb-4">
-            <h5 class="fw-bold">Selected Items</h5>
+            <h5 class="fw-bold">Pembayaran Terpilih:</h5>
             <table class="table table-bordered table-striped">
                 <thead class="table-dark">
                     <tr>

@@ -58,5 +58,42 @@
         </tfoot>
     </table>
 
+
+    <h3>Instalments</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Subtotal</th>
+                <th>Total</th>
+                <th>Due Date</th>
+                <th>Paid At</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($transaction->instalments as $index => $instalment)
+            <tr>
+                <td>{{ $index + 1 }}</td>
+                <td>{{ $instalment->subtotal }}</td>
+                <td>{{ $instalment->total }}</td>
+                <td>{{ $instalment->due_date->format('d M Y') }}</td>
+                <td>{{ $instalment->paid_at ? $instalment->paid_at->format('d M Y') : 'Unpaid' }}</td>
+                <td>
+                    @if (!$instalment->paid_at)
+                        <form action="{{ route('instalments.pay', $instalment) }}" method="POST" style="display: inline-block;">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="btn btn-success btn-sm">Pay</button>
+                        </form>
+                    @else
+                        <button class="btn btn-secondary btn-sm" disabled>Paid</button>
+                    @endif
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+
     <a href="{{ route('transactions.index') }}" class="btn btn-secondary">Back</a>
 @endsection

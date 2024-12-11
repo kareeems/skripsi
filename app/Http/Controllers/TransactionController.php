@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Item;
 use App\Models\TransactionItem;
-
+use App\Models\Instalment;
 
 class TransactionController extends Controller
 {
@@ -45,13 +46,18 @@ class TransactionController extends Controller
         $transaction = Transaction::create($request->all());
 
         // Simpan data transaction_items
-        foreach ($request->items as $itemId => $itemData) {
-            TransactionItem::create([
-                'transaction_id' => $transaction->id,
-                'item_id' => $itemId,
-                'quantity' => $itemData['quantity'],
-                'price' => doubleval($itemData['price']),
-            ]);
+        if (!empty($request->items)){
+            foreach ($request->items as $itemId => $itemData) {
+                TransactionItem::create([
+                    'transaction_id' => $transaction->id,
+                    'item_id' => $itemId,
+                    'quantity' => $itemData['quantity'],
+                    'price' => doubleval($itemData['price']),
+                ]);
+            }
+
+            // Jika instalment diatur, buat data cicilan
+            $this->createInstalments($transaction);
         }
 
         return redirect()->route('transactions.index')->with('success', 'Transaction created successfully.');
@@ -60,7 +66,7 @@ class TransactionController extends Controller
     // Menampilkan detail transaksi
     public function show($id)
     {
-        $transaction = Transaction::with(['user', 'items'])->findOrFail($id);
+        $transaction = Transaction::with(['user', 'items', 'instalments'])->findOrFail($id);
         return view('transactions.show', compact('transaction'));
     }
 
@@ -136,8 +142,45 @@ class TransactionController extends Controller
     public function destroy($id)
     {
         $transaction = Transaction::findOrFail($id);
+
+        // Hapus item terkait dari pivot table
+        $transaction->items()->detach();
+
+        // Hapus instalment terkait dari pivot table
+        $transaction->instalments()->delete();
+
+        // Hapus transaksi utama
         $transaction->delete();
 
         return redirect()->route('transactions.index')->with('success', 'Transaction deleted successfully.');
+    }
+
+    // Membuat instalments (10 kali cicilan kecuali Juni dan Desember)
+    private function createInstalments($transaction)
+    {
+        $instalments = [];
+        $subtotalPerInstalment = $transaction->subtotal / 10;
+        $totalPerInstalment = $transaction->total / 10;
+
+        $currentMonth = Carbon::now()->month;
+
+        for ($i = 1; $i <= 12; $i++) {
+            if (!in_array($i, [6, 12])) { // Skip Juni dan Desember
+                $dueDate = Carbon::now()->addMonths($i - $currentMonth)->startOfMonth()->setDay(10);
+                $instalments[] = [
+                    'transaction_id' => $transaction->id,
+                    'subtotal' => $subtotalPerInstalment,
+                    'total' => $totalPerInstalment,
+                    'due_date' => $dueDate,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+
+                // Break jika sudah mencapai 10 instalment
+                if (count($instalments) >= 10) break;
+            }
+        }
+
+        Instalment::insert($instalments);
     }
 }

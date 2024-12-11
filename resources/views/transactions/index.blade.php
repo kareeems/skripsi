@@ -30,7 +30,17 @@
                     <td>{{ $transaction->user->name ?? 'N/A' }}</td>
                     <td>{{ $transaction->subtotal }}</td>
                     <td>{{ $transaction->total }}</td>
-                    <td>{{ ucfirst($transaction->status) }}</td>
+                    <td>
+                        @if ($transaction->status === 'unpaid')
+                            <span class="badge bg-danger">Unpaid</span>
+                        @elseif ($transaction->status === 'partial')
+                            <span class="badge bg-warning text-dark">Partial</span>
+                        @elseif ($transaction->status === 'paid')
+                            <span class="badge bg-success">Paid</span>
+                        @else
+                            <span class="badge bg-secondary">Unknown</span>
+                        @endif
+                    </td>
                     <td>
                         <a href="{{ route('transactions.show', $transaction->id) }}" class="btn btn-info btn-sm">View</a>
                         <a href="{{ route('transactions.edit', $transaction->id) }}" class="btn btn-warning btn-sm">Edit</a>
