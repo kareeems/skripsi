@@ -17,9 +17,10 @@ public function up()
         $table->unsignedBigInteger('user_id');
         $table->decimal('subtotal', 10, 2);
         $table->decimal('total', 10, 2);
-        $table->enum('status', ['paid', 'unpaid'])->default('unpaid');
+        $table->enum('status', ['paid', 'unpaid', 'partial'])->default('unpaid');
         $table->integer('instalment')->default(10);
         $table->timestamps();
+
         $table->foreign('user_id')
                 ->references('id')
                 ->on('users')

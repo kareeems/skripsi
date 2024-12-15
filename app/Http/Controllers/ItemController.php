@@ -10,7 +10,7 @@ class ItemController extends Controller
     // Menampilkan daftar item transaksi
     public function index()
     {
-        $items = Item::paginate(20);
+        $items = Item::orderBy('created_at', 'desc')->paginate(20);
         return view('items.index', compact('items'));
     }
 

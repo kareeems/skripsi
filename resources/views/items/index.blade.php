@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('breadcrumb', 'Categori Tagihan')
+@section('breadcrumb', 'Kategori Tagihan')
 
 @section('content')
     @if (session('success'))
@@ -8,8 +8,8 @@
     @endif
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1>Categori Tagihan</h1>
-        <a href="{{ route('items.create') }}" class="btn btn-primary">Add New Item</a>
+        <h1>Kategori Tagihan</h1>
+        <a href="{{ route('items.create') }}" class="btn btn-primary">New Tagihan</a>
     </div>
 
     <table class="table mt-3">

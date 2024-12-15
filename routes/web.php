@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\InstalmentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -17,3 +18,4 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('rol
 Route::resource('items', ItemController::class)->middleware('role:teacher,admin');
 Route::resource('users', UserController::class)->middleware('role:teacher,admin');
 Route::resource('transactions', TransactionController::class);
+Route::patch('/instalments/{instalment}/pay', [InstalmentController::class, 'pay'])->name('instalments.pay');

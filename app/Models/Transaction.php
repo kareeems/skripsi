@@ -15,9 +15,25 @@ class Transaction extends Model
         'status',
         'instalment',
     ];
+
     // Relasi ke model User
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relasi ke Item melalui tabel pivot TransactionItem.
+     */
+    public function items()
+    {
+        return $this->belongsToMany(Item::class, 'transaction_items')
+            ->withPivot('quantity', 'price')
+            ->withTimestamps();
+    }
+    
+    public function instalments()
+    {
+        return $this->hasMany(Instalment::class);
     }
 }
