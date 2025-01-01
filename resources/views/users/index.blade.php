@@ -25,7 +25,7 @@
         <tbody>
             @foreach($users as $user)
             <tr>
-                <td>{{ $user->name }}</td>
+                <td>{{ $user->fullname }}</td>
                 <td>
                     @if($user->role == 'admin')
                         <span class="badge bg-danger">Admin</span>

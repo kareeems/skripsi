@@ -27,7 +27,7 @@
             @foreach ($transactions as $transaction)
                 <tr>
                     <td>{{ $transaction->id }}</td>
-                    <td>{{ $transaction->user->name ?? 'N/A' }}</td>
+                    <td>{{ $transaction->user->fullname ?? 'N/A' }}</td>
                     <td>{{ $transaction->subtotal }}</td>
                     <td>{{ $transaction->total }}</td>
                     <td>
