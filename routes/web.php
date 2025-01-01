@@ -15,6 +15,10 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/tagihan', [App\Http\Controllers\HomeController::class, 'tagihan'])->name('tagihan');
+Route::get('/riwayat', [App\Http\Controllers\HomeController::class, 'riwayat'])->name('riwayat');
+Route::get('/bantuan', [App\Http\Controllers\HomeController::class, 'bantuan'])->name('bantuan');
+Route::get('/transaksi_online', [App\Http\Controllers\HomeController::class, 'transaksi'])->name('transaksi_online');
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:teacher,admin')->name('dashboard');
 Route::resource('items', ItemController::class)->middleware('role:teacher,admin');
 Route::resource('users', UserController::class)->middleware('role:teacher,admin');

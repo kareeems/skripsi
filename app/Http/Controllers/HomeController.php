@@ -25,4 +25,21 @@ class HomeController extends Controller
     {
         return view('home');
     }
+    public function tagihan()
+    {
+        return view('tagihan');
+    }
+    public function riwayat()
+    {
+        return view('riwayat');
+    }
+    public function transaksi()
+    {
+        return view('transaksi_online');
+    }
+    public function bantuan()
+    {
+        return view('bantuan');
+    }
+    
 }

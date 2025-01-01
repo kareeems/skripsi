@@ -113,7 +113,7 @@
             </button>
             <h1>Aplikasi Pembayaran</h1>
             <button class="btn btn-outline-danger logout-btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                <i class="fas fa-sign-out-alt"></i> Logout
+            Logout <i class="fas fa-sign-out-alt ml-3"></i>
             </button>
             <form id="logout-form" action="{{ url('/logout') }}" method="POST" style="display: none;">
                 @csrf
