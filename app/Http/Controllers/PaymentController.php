@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use App\Models\Instalment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Midtrans\Config;
 use Midtrans\Snap;
 
@@ -20,75 +21,79 @@ class PaymentController extends Controller
 
     public function createCharge(Request $request)
     {
-        $rules = [
-            'user_id' => 'required|exists:users,id',
-            'payment_type' => 'required|string|in:instalment',
-            'referensi_id' => 'required|array|min:1',
-            'referensi_id.*' => 'integer',
-            'amount' => 'required|integer',
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'email' => 'required|email',
-            'phone' => 'nullable|string|min:10',
-        ];
+        try {
+            $rules = [
+                'user_id' => 'required|exists:users,id',
+                'payment_type' => 'required|string|in:instalment',
+                'referensi_ids' => 'required|array|min:1',
+                'referensi_ids.*' => 'integer',
+                'amount' => 'required|integer',
+                'first_name' => 'required|string',
+                'last_name' => 'required|string',
+                'email' => 'required|email',
+                'phone' => 'nullable|string|min:10',
+            ];
 
-        // Validasi berdasarkan payment_type
-        if ($request->payment_type === 'instalment') {
-            $rules['referensi_id.*'] = 'exists:instalments,id';
-        }
-
-        // Validasi request
-        $request->validate($rules);
-
-        $paymentType = $request->payment_type;
-        $paymentReference = null;
-        if ($paymentType != 'instalment') {
-            $paymentReference = $request->referensi_id[0];
-        }
-
-        $payment = Payment::create([
-            'user_id' => $request->user_id,
-            'reference_id' => $paymentReference,
-            'reference_type' => $paymentType,
-            'invoice_number' => uniqid('INV-'),
-            'amount' => $request->amount,
-        ]);
-
-        // Jika payment_type adalah instalment
-        if ($paymentType === 'instalment') {
-            // Validasi bahwa setiap referensi_id merujuk pada instalmen yang valid
-            $instalments = Instalment::whereIn('id', $request->referensi_id)->get();
-            if ($instalments->count() !== count($request->referensi_id)) {
-                $payment->update(['status' => 'failed']);
-                return response()->json(['message' => 'Beberapa instalmen tidak valid'], 400);
+            // Validasi berdasarkan payment_type
+            if ($request->payment_type === 'instalment') {
+                $rules['referensi_ids.*'] = 'exists:instalments,id';
             }
 
-            // Menambahkan relasi banyak ke banyak dengan instalmen menggunakan pivot table
-            foreach ($instalments as $instalment) {
-                $payment->instalments()->attach($instalment->id, ['amount' => $instalment->total]);
+            // Validasi request
+            $request->validate($rules);
+
+            $paymentType = $request->payment_type;
+            $paymentReference = null;
+            if ($paymentType != 'instalment') {
+                $paymentReference = $request->referensi_ids[0];
             }
+
+            $payment = Payment::create([
+                'user_id' => $request->user_id,
+                'reference_id' => $paymentReference,
+                'reference_type' => $paymentType,
+                'invoice_number' => uniqid('INV-'),
+                'amount' => $request->amount,
+            ]);
+
+            // Jika payment_type adalah instalment
+            if ($paymentType === 'instalment') {
+                // Validasi bahwa setiap referensi_ids merujuk pada instalmen yang valid
+                $instalments = Instalment::whereIn('id', $request->referensi_ids)->get();
+                if ($instalments->count() !== count($request->referensi_ids)) {
+                    $payment->update(['status' => 'failed']);
+                    return response()->json(['message' => 'Beberapa instalmen tidak valid'], 400);
+                }
+
+                // Menambahkan relasi banyak ke banyak dengan instalmen menggunakan pivot table
+                foreach ($instalments as $instalment) {
+                    $payment->instalments()->attach($instalment->id, ['amount' => $instalment->total]);
+                }
+            }
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $payment->invoice_number,
+                    'gross_amount' => $payment->amount,
+                ],
+                'customer_details' => [
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                ],
+            ];
+
+            $snapToken = Snap::getSnapToken($params);
+
+            return response()->json([
+                'params' => $params,
+                'token' => $snapToken,
+                'payment' => $payment,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
         }
-
-        $params = [
-            'transaction_details' => [
-                'order_id' => $payment->invoice_number,
-                'gross_amount' => $payment->amount,
-            ],
-            'customer_details' => [
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-            ],
-        ];
-
-        $snapToken = Snap::getSnapToken($params);
-
-        return response()->json([
-            'params' => $params,
-            'token' => $snapToken,
-            'payment' => $payment,
-        ]);
     }
 
     public function callback(Request $request)
@@ -106,6 +111,7 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Payment not found'], 404);
         }
 
+        // Jika status transaksi adalah 'settlement', lakukan update
         if ($request->transaction_status === 'settlement') {
             $payment->update([
                 'status' => 'paid',
@@ -114,40 +120,49 @@ class PaymentController extends Controller
                 'callback_data' => $request->all(),
             ]);
 
-            // Update instalment and related transaction
-            $this->updateInstalmentStatus($payment->reference_id);
+            // Update instalment dan status transaksi terkait
+            $this->updateInstalmentsAndTransactionStatus($payment);
         }
 
         return response()->json(['message' => 'Payment updated']);
     }
 
-    private function updateInstalmentStatus($instalmentId)
+    private function updateInstalmentsAndTransactionStatus(Payment $payment)
     {
-        $instalment = Instalment::findOrFail($instalmentId);
+        // Ambil instalmen yang terkait dengan pembayaran ini
+        $instalments = $payment->instalments()->get();
 
-        // Update paid_at pada instalment
-        $instalment->update(['paid_at' => now()]);
+        foreach ($instalments as $instalment) {
+            // Tandai instalmen sebagai dibayar
+            $instalment->update(['paid_at' => now()]);
 
-        // Perbarui status transaksi terkait
-        $this->updateTransactionStatus($instalment->transaction);
+            // Masukkan ke tabel pivot untuk menyimpan informasi pembayaran
+            DB::table('payment_instalment')->insert([
+                'payment_id' => $payment->id,
+                'instalment_id' => $instalment->id,
+                'amount' => $instalment->total,
+            ]);
+        }
 
-        return $instalment;
+        // Ambil transaksi terkait
+        $transaction = $instalments->first()->transaction;
+
+        // Update status transaksi setelah instalmen dibayar
+        $this->updateTransactionStatus($transaction);
     }
 
     private function updateTransactionStatus($transaction)
     {
+        // Hitung total instalmen dan yang sudah dibayar
         $totalInstalments = $transaction->instalments()->count();
         $paidInstalments = $transaction->instalments()->whereNotNull('paid_at')->count();
 
-        if ($paidInstalments === 0) {
-            $transaction->update(['status' => 'unpaid']);
-        } elseif ($paidInstalments < $totalInstalments) {
-            $transaction->update(['status' => 'partial']);
-        } else {
-            $transaction->update(['status' => 'paid']);
-        }
-
-        return $transaction;
+        // Tentukan status transaksi berdasarkan jumlah instalmen yang dibayar
+        $transaction->update([
+            'status' => $paidInstalments === $totalInstalments
+                ? 'paid'
+                : ($paidInstalments > 0 ? 'partial' : 'unpaid'),
+        ]);
     }
 
     public function index(Request $request)
