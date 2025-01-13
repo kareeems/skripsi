@@ -102,7 +102,7 @@
     <nav class="sidebar" id="sidebar" aria-label="sidebar">
         <h2 class="sidebar-title">Dashboard</h2>
         <a href="{{ route('users.index') }}" class="sidebar-body {{ request()->routeIs('users*') ? 'active' : '' }}">Manajemen User</a>
-        <a href="{{ route('items.index') }}" class="sidebar-body {{ request()->routeIs('items*') ? 'active' : '' }}">Kategori Tagihan</a>
+        <a href="{{ route('items.index') }}" class="sidebar-body {{ request()->routeIs('items*') ? 'active' : '' }}">Manajemen Tagihan</a>
         <a href="{{ route('transactions.index') }}" class="sidebar-body {{ request()->routeIs('transactions*') ? 'active' : '' }}">Manajemen Transaksi</a>
         <a href="{{ route('payments.index') }}" class="sidebar-body {{ request()->routeIs('payments*') ? 'active' : '' }}">Laporan Pembayaran</a>
     </nav>
