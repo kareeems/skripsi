@@ -5,17 +5,24 @@
 </style>
 @section('content')
         <div class="text-center mb-4">
-            <h3 class="profile-info">MUHAMMAD ABDUL KARIM</h3>
-            <p>215411100 — Informatika 📱 085781462984 ✉️ kareemsyukur@gmail.com</p>
+            <h3 class="profile-info">{{ $user->getFullNameAttribute() }}</h3>
+            <p>{{ $user->nis }} 📱 {{ $user->phone }} ✉️ {{ $user->email }}</p>
             <small class="text-muted">* Jika ada kesalahan pada data di atas, silakan hubungi bagian Akademik</small>
         </div>
 
-        <div class="alert alert-light text-center border" role="alert">
-            <strong>Anda tidak punya tagihan ✨</strong>
-            <div>
-                <a href="#" class="text-decoration-none me-3">Lihat Rekapan Tagihan</a>
-                <a href="#" class="text-decoration-none">Lihat Riwayat Pembayaran</a>
-            </div>
+        <div class="alert alert-{{ $totalUnpaid > 0 ? "danger":"light" }} text-center border" role="alert">
+            @if ($totalUnpaid > 0)
+                <h1>Rp {{ number_format($totalUnpaid, 0, ',', '.') }}</h1>
+                <div>
+                    <a href="/tagihan" class="btn btn-warning text-decoration-none me-3">Lihat Tagihan Saya</a>
+                </div>
+            @else
+                <strong>Anda tidak punya tagihan ✨</strong>
+                <div>
+                    <a href="/tagihan" class="text-decoration-none me-3">Lihat Rekapan Tagihan</a>
+                    <a href="/riwayat" class="text-decoration-none">Lihat Riwayat Pembayaran</a>
+                </div>
+            @endif
         </div>
 
         <div class="row text-center">

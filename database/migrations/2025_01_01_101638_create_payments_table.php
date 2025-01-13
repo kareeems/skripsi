@@ -13,20 +13,23 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('reference_id');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('reference_id'); // Untuk polymorphic
+            $table->string('reference_type'); // Tipe referensi (misalnya Instalment, Product, dll)
             $table->string('payment_method')->nullable();
             $table->string('invoice_number')->unique();
             $table->integer('amount');
+            $table->enum('trigger_by', ['self', 'admin'])->default('self');
             $table->string('status')->default('pending');
             $table->timestamp('paid_at')->nullable();
             $table->json('callback_data')->nullable();
             $table->timestamps();
 
             // Membuat foreign key constraint
-            $table->foreign('reference_id')
-                    ->references('id')
-                    ->on('instalments')
-                    ->onDelete('cascade');
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
         });
     }
 

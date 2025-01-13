@@ -26,4 +26,12 @@ class Instalment extends Model
     {
         return $this->belongsTo(Transaction::class);
     }
+    
+    // Relasi banyak ke banyak dengan pembayaran
+    public function payments()
+    {
+        return $this->belongsToMany(Payment::class, 'payment_instalment')
+                    ->withPivot('amount')  // Menyimpan jumlah yang dibayar untuk instalmen ini
+                    ->withTimestamps();
+    }
 }

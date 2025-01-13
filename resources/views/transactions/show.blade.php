@@ -2,21 +2,19 @@
 @section('breadcrumb', 'Transaction Details')
 
 @section('content')
-    <h1>Transaction Details</h1>
-
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th colspan="2" class="text-center">Transaction Information</th>
+                <th colspan="2" class="text-center">Information</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <th>ID</th>
+                <th>User ID</th>
                 <td>{{ $transaction->id }}</td>
             </tr>
             <tr>
-                <th>User</th>
+                <th>Fullname</th>
                 <td>{{ $transaction->user->fullname ?? 'N/A' }}</td>
             </tr>
             <tr>
@@ -26,7 +24,7 @@
         </tbody>
     </table>
 
-    <h3>Transaction Items</h3>
+    <h5>Items:</h5>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -55,11 +53,17 @@
                 <th colspan="3" class="text-right">Total Amount:</th>
                 <td>{{ number_format($transaction->total, 2) }}</td>
             </tr>
+            <tr>
+                <th colspan="3" class="text-right">Action:</th>
+                <td>
+                    <a href="#" class="btn btn-sm btn-success">Bayar Semua</a>
+                    <a href="{{ route('transaction.instalments', $transaction) }}" class="btn btn-sm btn-warning">Cicil</a>
+                </td>
+            </tr>
         </tfoot>
     </table>
 
-
-    <h3>Instalments</h3>
+    {{-- <h3>Instalments</h3>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -108,7 +112,7 @@
         <div class="spinner-border" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
-    </div>
+    </div> --}}
 @endsection
 
 @section('script')
@@ -158,6 +162,7 @@
                         body: JSON.stringify({
                             instalment_id: instalmentId,
                             amount: parseInt(total),
+                            user_id: '{{ $transaction->user->id }}',
                             first_name: '{{ $transaction->user->first_name }}',
                             last_name: '{{ $transaction->user->last_name }}',
                             email: '{{ $transaction->user->email }}',

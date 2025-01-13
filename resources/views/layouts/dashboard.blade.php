@@ -65,7 +65,7 @@
         }
         .header h1 {
             margin: 0;
-            color: #ff9800; /* Warna oranye */
+            color: #2ccc17; /* Warna oranye */
         }
         .logout-btn {
             color: #dc3545; /* Warna merah */
@@ -104,6 +104,7 @@
         <a href="{{ route('users.index') }}" class="sidebar-body {{ request()->routeIs('users*') ? 'active' : '' }}">Manajemen User</a>
         <a href="{{ route('items.index') }}" class="sidebar-body {{ request()->routeIs('items*') ? 'active' : '' }}">Kategori Tagihan</a>
         <a href="{{ route('transactions.index') }}" class="sidebar-body {{ request()->routeIs('transactions*') ? 'active' : '' }}">Manajemen Transaksi</a>
+        <a href="{{ route('payments.index') }}" class="sidebar-body {{ request()->routeIs('payments*') ? 'active' : '' }}">Laporan Pembayaran</a>
     </nav>
 
     <div class="content flex-grow-1">
