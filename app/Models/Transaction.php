@@ -31,7 +31,7 @@ class Transaction extends Model
             ->withPivot('quantity', 'price')
             ->withTimestamps();
     }
-    
+
     public function instalments()
     {
         return $this->hasMany(Instalment::class);

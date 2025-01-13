@@ -15,6 +15,7 @@ class Payment extends Model
         'reference_type',
         'payment_method',
         'invoice_number',
+        'trigger_by',
         'amount',
         'status',
         'paid_at',

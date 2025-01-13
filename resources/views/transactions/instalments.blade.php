@@ -160,12 +160,8 @@
 
         // Event listener untuk tombol Bayar Sekarang
         payNowButton.addEventListener('click', function () {
-            console.log('Selected instalments:', selectedInstalments);
-            console.log('Total amount:', totalAmount);
-
             if (selectedInstalments.length > 0) {
                 const totalPreviewElement = document.getElementById('total-preview-modal');
-                console.log('Total preview element:', totalPreviewElement);
 
                 if (totalPreviewElement) {
                     totalPreviewElement.textContent = 'Rp ' + totalAmount.toLocaleString();
@@ -187,15 +183,16 @@
         // Fungsi untuk memproses pembayaran
         async function payInstalments(instalmentIds) {
             try {
+                const instalment_ids = instalmentIds.map(i=>Number(i));
+
                 const response = await fetch(`{{ route('instalments.pay') }}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     },
-                    body: JSON.stringify({ instalmentIds }),
+                    body: JSON.stringify({ instalment_ids, user_id: `{{ $transaction->user_id }}` }),
                 });
-                console.log(response);
 
                 const result = await response.json();
 
@@ -204,12 +201,10 @@
                 }
 
                 alert('Payment successful!');
-                console.log(result);
                 window.location.reload();
             } catch (error) {
-                console.log(error);
-
-                alert(`Error: ${error.message}`);
+                alert('Payment unsuccessful!');
+                console.log(`Error: ${error.message}`);
             }
         }
     </script>
