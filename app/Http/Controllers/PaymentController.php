@@ -20,20 +20,54 @@ class PaymentController extends Controller
 
     public function createCharge(Request $request)
     {
-        $request->validate([
-            'instalment_id' => 'required|exists:instalments,id',
+        $rules = [
+            'user_id' => 'required|exists:users,id',
+            'payment_type' => 'required|string|in:instalment',
+            'referensi_id' => 'required|array|min:1',
+            'referensi_id.*' => 'integer',
             'amount' => 'required|integer',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'email' => 'required|email',
             'phone' => 'nullable|string|min:10',
-        ]);
+        ];
+
+        // Validasi berdasarkan payment_type
+        if ($request->payment_type === 'instalment') {
+            $rules['referensi_id.*'] = 'exists:instalments,id';
+        }
+
+        // Validasi request
+        $request->validate($rules);
+
+        $paymentType = $request->payment_type;
+        $paymentReference = null;
+        if ($paymentType != 'instalment') {
+            $paymentReference = $request->referensi_id[0];
+        }
 
         $payment = Payment::create([
-            'reference_id' => $request->instalment_id,
+            'user_id' => $request->user_id,
+            'reference_id' => $paymentReference,
+            'reference_type' => $paymentType,
             'invoice_number' => uniqid('INV-'),
             'amount' => $request->amount,
         ]);
+
+        // Jika payment_type adalah instalment
+        if ($paymentType === 'instalment') {
+            // Validasi bahwa setiap referensi_id merujuk pada instalmen yang valid
+            $instalments = Instalment::whereIn('id', $request->referensi_id)->get();
+            if ($instalments->count() !== count($request->referensi_id)) {
+                $payment->update(['status' => 'failed']);
+                return response()->json(['message' => 'Beberapa instalmen tidak valid'], 400);
+            }
+
+            // Menambahkan relasi banyak ke banyak dengan instalmen menggunakan pivot table
+            foreach ($instalments as $instalment) {
+                $payment->instalments()->attach($instalment->id, ['amount' => $instalment->total]);
+            }
+        }
 
         $params = [
             'transaction_details' => [
@@ -116,4 +150,34 @@ class PaymentController extends Controller
         return $transaction;
     }
 
+    public function index(Request $request)
+    {
+        $query = Payment::with(['user', 'instalment']);
+
+        // Filter by search
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('invoice_number', 'like', '%' . $request->search . '%')
+                ->orWhere('payment_method', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by created_at range
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        // Paginate the results
+        $payments = $query->paginate(10);
+
+        return view('payment.index', compact('payments'));
+    }
 }

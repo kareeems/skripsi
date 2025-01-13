@@ -155,6 +155,20 @@ class TransactionController extends Controller
         return redirect()->route('transactions.index')->with('success', 'Transaction deleted successfully.');
     }
 
+    // Menampilkan detail transaksi
+    public function instalments($id)
+    {
+        $transaction = Transaction::with(['instalments'])->findOrFail($id);
+        return view('transactions.instalments', compact('transaction'));
+    }
+
+    // Bayar semua
+    public function pay($id)
+    {
+        // $transaction = Transaction::with(['instalments'])->findOrFail($id);
+        // return view('transactions.instalments', compact('transaction'));
+    }
+
     // Membuat instalments (10 kali cicilan kecuali Juni dan Desember)
     private function createInstalments($transaction)
     {

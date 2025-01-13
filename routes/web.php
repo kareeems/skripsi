@@ -9,7 +9,7 @@ use App\Http\Controllers\InstalmentController;
 use App\Http\Controllers\PaymentController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('home');
 });
 
 Auth::routes();
@@ -23,6 +23,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('rol
 Route::resource('items', ItemController::class)->middleware('role:teacher,admin');
 Route::resource('users', UserController::class)->middleware('role:teacher,admin');
 Route::resource('transactions', TransactionController::class);
-Route::patch('/instalments/{instalment}/pay', [InstalmentController::class, 'pay'])->name('instalments.pay');
+Route::get('transactions/{transaction}/instalments', [TransactionController::class, 'instalments'])->name('transaction.instalments');
+Route::post('/instalments/pay', [InstalmentController::class, 'pay'])->name('instalments.pay');
 Route::post('/payments/charge', [PaymentController::class, 'createCharge'])->name('payment.charge');
 Route::post('/payments/callback', [PaymentController::class, 'callback'])->name('payment.callback');
+Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
