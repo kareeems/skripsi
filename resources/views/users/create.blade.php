@@ -15,6 +15,10 @@
                 <input type="text" class="form-control" id="last_name" name="last_name">
             </div>
             <div class="mb-3">
+                <label for="nis" class="form-label">Nomor Induk Santri</label>
+                <input type="text" class="form-control" id="nis" name="nis">
+            </div>
+            <div class="mb-3">
                 <label for="role" class="form-label">Role</label>
                 <select class="form-control" id="role" name="role" required>
                     <option value="student">Student</option>
