@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Instalment;
+use App\Models\Payment;
 
 class HomeController extends Controller
 {
@@ -29,15 +30,22 @@ class HomeController extends Controller
         $user = Auth::user();
 
         // Hitung total tagihan untuk installment yang belum dibayar
-        $totalUnpaid = Instalment::whereNull('paid_at')->sum('total');
+        $totalUnpaid = Instalment::whereHas('transaction', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->whereNull('paid_at')->sum('total');
 
         return view('home', compact('user', 'totalUnpaid'));
     }
 
     public function tagihan()
     {
+        // Mengambil data pengguna yang sedang login
+        $user = Auth::user();
+
         // Hitung total tagihan yang belum dibayar (paid_at = null)
-        $totalUnpaid = Instalment::whereNull('paid_at');
+        $totalUnpaid = Instalment::whereHas('transaction', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->whereNull('paid_at');
 
         // Hitung total tagihan keseluruhan
         $totalAmount = $totalUnpaid->sum('total');
@@ -56,12 +64,30 @@ class HomeController extends Controller
 
     public function riwayat()
     {
-        return view('riwayat');
+        // Mengambil data pengguna yang sedang login
+        $user = Auth::user();
+
+        // Hitung total tagihan instalment yang belum dibayar milik pengguna
+        $payments = Payment::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('riwayat', compact('payments'));
     }
+
+    public function show_riwayat(Payment $payment)
+    {
+        $payment->load('instalments'); // Eager load instalments if needed
+        $payment->instalments = $payment->instalments()->paginate(10);
+
+        return view('show_riwayat', compact('payment'));
+    }
+
     public function transaksi()
     {
         return view('transaksi_online');
     }
+
     public function bantuan()
     {
         return view('bantuan');

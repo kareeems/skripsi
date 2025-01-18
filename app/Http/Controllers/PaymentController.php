@@ -135,13 +135,6 @@ class PaymentController extends Controller
         foreach ($instalments as $instalment) {
             // Tandai instalmen sebagai dibayar
             $instalment->update(['paid_at' => now()]);
-
-            // Masukkan ke tabel pivot untuk menyimpan informasi pembayaran
-            DB::table('payment_instalment')->insert([
-                'payment_id' => $payment->id,
-                'instalment_id' => $instalment->id,
-                'amount' => $instalment->total,
-            ]);
         }
 
         // Ambil transaksi terkait
@@ -167,7 +160,7 @@ class PaymentController extends Controller
 
     public function index(Request $request)
     {
-        $query = Payment::with(['user', 'instalment']);
+        $query = Payment::with(['user']);
 
         // Filter by search
         if ($request->filled('search')) {
@@ -191,7 +184,7 @@ class PaymentController extends Controller
         }
 
         // Paginate the results
-        $payments = $query->paginate(10);
+        $payments = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return view('payment.index', compact('payments'));
     }
