@@ -68,7 +68,9 @@
                 <th>Payment Method</th>
                 <th>Amount</th>
                 <th>Status</th>
-                <th>Referensi</th>
+                <th>Type</th>
+                <th>References</th>
+                <th>Paid At</th>
                 <th>Created At</th>
                 <th>Callback</th>
             </tr>
@@ -81,7 +83,9 @@
                     <td>{{ $payment->payment_method ?? 'N/A' }}</td>
                     <td>{{ number_format($payment->amount, 2) }}</td>
                     <td>{{ ucfirst($payment->status) }}</td>
+                    <td>{{ $payment->reference_type ?? 'N/A' }}</td>
                     <td>{{ $payment->instalment->description ?? 'N/A' }}</td>
+                    <td>{{ $payment->paid_at }}</td>
                     <td>{{ $payment->created_at->format('Y-m-d H:i:s') }}</td>
                     <td>
                         <!-- Button to trigger modal -->

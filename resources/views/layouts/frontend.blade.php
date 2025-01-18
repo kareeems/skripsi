@@ -103,11 +103,11 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link active" href="home">Beranda</a></li>
-                    <li class="nav-item"><a class="nav-link" href="tagihan">Tagihan</a></li>
-                    <li class="nav-item"><a class="nav-link" href="transaksi_online">Transaksi Online</a></li>
-                    <li class="nav-item"><a class="nav-link" href="riwayat">Riwayat Pembayaran</a></li>
-                    <li class="nav-item"><a class="nav-link" href="bantuan">Bantuan</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/home">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/tagihan">Tagihan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/transaksi_online">Transaksi Online</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/riwayat">Riwayat Pembayaran</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/bantuan">Bantuan</a></li>
                     <li class="nav-item dropdown">
                 </ul>
                 <div class="nav-item dropdown">

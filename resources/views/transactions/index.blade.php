@@ -32,7 +32,7 @@
                     <td>{{ $transaction->total }}</td>
                     <td>
                         @if ($transaction->status === 'unpaid')
-                            <span class="badge bg-danger">Unpaid</span>
+                            <span class="badge bg-black">Unpaid</span>
                         @elseif ($transaction->status === 'partial')
                             <span class="badge bg-warning text-dark">Partial</span>
                         @elseif ($transaction->status === 'paid')

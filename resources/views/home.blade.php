@@ -1,8 +1,5 @@
 @extends('layouts.frontend')
 
-@section('css')
-
-</style>
 @section('content')
         <div class="text-center mb-4">
             <h3 class="profile-info">{{ $user->getFullNameAttribute() }}</h3>
@@ -28,7 +25,7 @@
         <div class="row text-center">
             <div class="col-md-3 mb-3">
                 <!-- Membuat seluruh kartu menjadi tautan -->
-                <a href="tagihan" class="card-link">
+                <a href="/tagihan" class="card-link">
                     <div class="card shadow-sm">
                         <div class="card-body">
                             <i class="bi bi-list-ul card-icon"></i>
@@ -38,7 +35,7 @@
                 </a>
             </div>
             <div class="col-md-3 mb-3">
-                <a href="transaksi_online" class="card-link">
+                <a href="/transaksi_online" class="card-link">
                     <div class="card shadow-sm">
                         <div class="card-body">
                             <i class="bi bi-credit-card-2-front card-icon"></i>
@@ -48,7 +45,7 @@
                 </a>
             </div>
             <div class="col-md-3 mb-3">
-                <a href="riwayat" class="card-link">
+                <a href="/riwayat" class="card-link">
                     <div class="card shadow-sm">
                         <div class="card-body">
                             <i class="bi bi-journal-text card-icon"></i>
@@ -58,7 +55,7 @@
                 </a>
             </div>
             <div class="col-md-3 mb-3">
-                <a href="bantuan" class="card-link">
+                <a href="/bantuan" class="card-link">
                     <div class="card shadow-sm">
                         <div class="card-body">
                             <i class="bi bi-question-circle card-icon"></i>

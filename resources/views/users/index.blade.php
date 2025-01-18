@@ -28,11 +28,11 @@
                 <td>{{ $user->fullname }}</td>
                 <td>
                     @if($user->role == 'admin')
-                        <span class="badge bg-danger">Admin</span>
+                        <span class="badge bg-black">Admin</span>
                     @elseif($user->role == 'teacher')
-                        <span class="badge bg-primary">Teacher</span>
+                        <span class="badge bg-info">Teacher</span>
                     @else
-                        <span class="badge bg-success">Student</span>
+                        <span class="badge bg-secondary">Student</span>
                     @endif
                 </td>
                 <td>{{ $user->email }}</td>
